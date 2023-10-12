@@ -8,6 +8,8 @@ const GenerateTemporyQrAddPayment = ({
   function handleInputChange(event) {
     const { name, value } = event.target;
     setUserData({ ...userData, [name]: value });
+    
+    
   }
   return (
     <div>

@@ -1,11 +1,18 @@
-import React, { useContext, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import GenerateTemporyQrAddUser from "../components/GenerateTemporyQrAddUser";
 import GenerateTemporyQrAddPayment from "../components/GenerateTemporyQrAddPayment";
 import GenerateTemporyQrCode from "../components/GenerateTemporyQrCode";
 import ToastContext from "../context/ToastContext";
+import { useNavigate } from "react-router-dom";
+import AuthContext from "../context/AuthContext";
 
 const GenerateTemporyQr = () => {
-    const { toast } = useContext(ToastContext);
+  const navigate = useNavigate();
+  const { user } = useContext(AuthContext);
+  useEffect(() => {
+    !user && navigate("/login", { replace: true });
+  }, []);
+  const { toast } = useContext(ToastContext);
   const [userData, setUserData] = useState({
     name: "",
     email: "",
@@ -13,6 +20,7 @@ const GenerateTemporyQr = () => {
     contactNo: "",
     address: "",
     accBalance: "",
+    created: false,
   });
   const [formErrors, setFormErrors] = useState({
     name: "",
@@ -49,13 +57,18 @@ const GenerateTemporyQr = () => {
       return;
     }
 
+    if (event.target.name === "next" && currentPage === 2) {
+      if (userData.created) {
+        setCurrentPage(3);
+        return;
+      }
+      createUser(userData);
+      return;
+    }
     if (event.target.name === "previous" && currentPage > 1)
       setCurrentPage(currentPage - 1);
     else if (event.target.name === "next" && currentPage < 3)
       setCurrentPage(currentPage + 1);
-    if (event.target.name === "next" && currentPage === 2) {
-      //login request
-    }
   }
   const createUser = async (userData) => {
     try {
@@ -63,16 +76,15 @@ const GenerateTemporyQr = () => {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
         },
         body: JSON.stringify({ ...userData }),
       });
       const result = await res.json();
       if (!result.error) {
         toast.success("Created successfully");
-        localStorage.setItem("token", result.jwtToken);
-        setUser(result.user);
-
-        navigate("/", { replace: true });
+        setUserData({ ...userData, created: true });
+        setCurrentPage(3);
       } else {
         toast.error(result.error);
       }
@@ -114,19 +126,22 @@ const GenerateTemporyQr = () => {
             Previous
           </button>
         )}
-        {currentPage !== 3 && (
-          <button
-            name="next"
-            className={`position-absolute bottom-0 end-0 m-5 btn ${
-              currentPage !== 2 ? "btn-primary" : "btn-success"
-            }`}
-            onClick={(event) => {
-              pageNumberHandler(event);
-            }}
-          >
-            {currentPage !== 2 ? "Next" : "Generate QR"}
-          </button>
-        )}
+
+        <button
+          name="next"
+          className={`position-absolute bottom-0 end-0 m-5 btn ${
+            currentPage !== 2 ? "btn-primary" : "btn-success"
+          }`}
+          onClick={(event) => {
+            pageNumberHandler(event);
+          }}
+        >
+          {currentPage === 3
+            ? "Back Home"
+            : currentPage === 1
+            ? "Next"
+            : "Generate QR"}
+        </button>
       </div>
     </>
   );

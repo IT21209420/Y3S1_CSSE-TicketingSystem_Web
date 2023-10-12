@@ -1,12 +1,10 @@
 import express from "express";
-import mongoose from "mongoose";
 import morgan from "morgan";
 import { connect } from "./config/db_con.js";
 import authRouter from "./routes/auth.js";
 import postRouter from "./routes/post.js";
 import passengerRouter from "./routes/passenger.js";
 import dotenv from "dotenv";
-import auth from "./middlewares/auth.js";
 dotenv.config({ path: "./config/config.env" });
 import cors from "cors";
 

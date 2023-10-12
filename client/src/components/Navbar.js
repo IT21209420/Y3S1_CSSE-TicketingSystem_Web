@@ -1,13 +1,23 @@
-import { useContext } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useContext, useEffect, useState } from "react";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import AuthContext from "../context/AuthContext";
 import ToastContext from "../context/ToastContext";
-
+import CommonContext from "../context/CommonContext";
+import { set } from "mongoose";
 
 const Navbar = ({ title = "Bus Ticketing System" }) => {
   const { toast } = useContext(ToastContext);
   const { user, setUser } = useContext(AuthContext);
+  const { data, setData, isSearchPressed, setIsSearchPressed } =
+    useContext(CommonContext);
   const navigate = useNavigate();
+  const location = useLocation();
+  const [currentPage, setCurrentPage] = useState("");
+  console.log(location.pathname);
+
+  useEffect(() => {
+    setCurrentPage(location.pathname);
+  }, [location.pathname]);
   return (
     <nav className="navbar navbar-expand-lg bg-primary" data-bs-theme="dark">
       <div className="container-fluid">
@@ -29,13 +39,37 @@ const Navbar = ({ title = "Bus Ticketing System" }) => {
           <ul className="navbar-nav ms-auto">
             {user ? (
               <>
+                {currentPage === "/getregistereduser" && (
+                  <li className="me-5">
+                    <form className="d-flex">
+                      <input
+                        className="form-control me-sm-2"
+                        type="search"
+                        placeholder="Search by NIC"
+                        onChange={(e) => {
+                          setData(e.target.value);
+                        }}
+                      />
+                      <button
+                        className="btn btn-secondary rounded my-2 my-sm-0"
+                        type="submit"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          setIsSearchPressed(!isSearchPressed);
+                        }}
+                      >
+                        Search
+                      </button>
+                    </form>
+                  </li>
+                )}
                 <li
                   className="nav-item"
                   onClick={() => {
                     setUser(null);
                     localStorage.clear();
-                    toast.success("Logged out successfully!")
-                    navigate("/login" ,{replace:true})
+                    toast.success("Logged out successfully!");
+                    navigate("/login", { replace: true });
                   }}
                 >
                   <button type="button" class="btn btn-danger">
@@ -69,10 +103,6 @@ const Navbar = ({ title = "Bus Ticketing System" }) => {
           </div>
         </li> */}
           </ul>
-          {/* <form className="d-flex">
-        <input className="form-control me-sm-2" type="search" placeholder="Search">
-        <button className="btn btn-secondary my-2 my-sm-0" type="submit">Search</button>
-      </form> */}
         </div>
       </div>
     </nav>
