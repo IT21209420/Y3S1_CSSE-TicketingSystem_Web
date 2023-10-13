@@ -15,10 +15,10 @@ const GenerateTemporyQrAddPayment = ({
         <h3>Add Payment</h3>
         <form>
           <div className="form-group d-flex align-items-center mt-4">
-            <label htmlFor="inputPayment" className="form-label m-0">
+            <label htmlFor="inputPayment" className="form-label m-0 w-50">
               Payment
             </label>
-            <div className=" ms-2 w-75">
+            <div className=" ms-2 w-50">
               <input
                 type="text"
                 className="form-control"
@@ -34,11 +34,11 @@ const GenerateTemporyQrAddPayment = ({
               )}
             </div>
           </div>
-          <div className="form-group  d-flex align-items-center mt-2">
-            <label htmlFor="inputPayment" className="form-label mt-4">
+          <div className="form-group  d-flex align-items-center mt-2 w-100">
+            <label htmlFor="inputPayment" className="form-label m-0 w-50">
               Select Payment Type
             </label>
-            <div className=" ms-2 w-75">
+            <div className=" ms-2 w-50">
               <select
                 className="form-select"
                 aria-label="Default select example"

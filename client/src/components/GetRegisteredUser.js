@@ -206,9 +206,9 @@ const GetRegisteredUser = () => {
                         </td>
                         <td className="px-1 py-2 ">{passenger.email}</td>
                         <td className="px-1 py-2">{passenger.nic}</td>
-                        <td className="px-1 py-2">{passenger.accBalance}</td>
-                        <td className="px-1 py-2">{passenger.address}</td>
                         <td className="px-1 py-2">{passenger.contactNo}</td>
+                        <td className="px-1 py-2">{passenger.address}</td>
+                        <td className="px-1 py-2">{passenger.accBalance}</td>
 
                         <td className="px-1 py-2 text-center">
                           <button
