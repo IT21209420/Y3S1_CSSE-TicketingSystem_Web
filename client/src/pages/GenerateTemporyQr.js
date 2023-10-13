@@ -20,8 +20,14 @@ const GenerateTemporyQr = () => {
     contactNo: "",
     address: "",
     accBalance: "",
+    type: "CASH",
     created: false,
   });
+  console.log(
+    "🚀 ~ file: GenerateTemporyQr.js:26 ~ GenerateTemporyQr ~ userData:",
+    userData
+  );
+
   const [formErrors, setFormErrors] = useState({
     name: "",
     email: "",
@@ -30,9 +36,13 @@ const GenerateTemporyQr = () => {
     address: "",
     accBalance: "",
   });
-  const [accBalanceErrors, setAccBalanceErrors] = useState(false);
+  const [accBalanceErrors, setAccBalanceErrors] = useState({
+    accBalance: "",
+    type: "",
+  });
 
   const [currentPage, setCurrentPage] = useState(1);
+
   function pageNumberHandler(event) {
     if (currentPage === 1 && event.target.name === "next") {
       const errors = {
@@ -48,13 +58,17 @@ const GenerateTemporyQr = () => {
       if (!Object.values(errors).every((error) => !error)) {
         return;
       }
-    } else if (
-      currentPage === 2 &&
-      userData.accBalance === "" &&
-      event.target.name === "next"
-    ) {
-      setAccBalanceErrors(true);
-      return;
+    } else if (currentPage === 2 && event.target.name === "next") {
+      const errors = {
+        type: userData.type.trim() === "",
+        accBalance: Number(userData.accBalance) === 0,
+      };
+
+      setAccBalanceErrors({ ...accBalanceErrors, ...errors });
+
+      if (!Object.values(errors).every((error) => !error)) {
+        return;
+      }
     }
 
     if (event.target.name === "next" && currentPage === 2) {
