@@ -186,7 +186,7 @@ router.put(
         type: type,
       });
       let savedTransaction = await transaction.save();
-
+      
       passenger.transactions.push(savedTransaction._id);
       passenger.accBalance = Number(passenger.accBalance) + Number(amount);
 
