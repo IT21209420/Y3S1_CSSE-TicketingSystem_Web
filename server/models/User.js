@@ -6,13 +6,22 @@ const UserSchema = new mongoose.Schema({
     required: true,
     max: 50,
     unique: true,
-
     required: [true, "email is required"],
   },
 
   password: {
     type: String,
     required: [true, "password is required"],
+  },
+  role: {
+    type: String,
+    default: "user",
+    required: [true, "role is required"],
+  },
+  
+  passengerId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Passenger",
   },
 });
 

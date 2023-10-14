@@ -1,22 +1,66 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { useContext, useEffect, useRef, useState } from "react";
 import CommonContext from "../context/CommonContext";
-import GenerateTemporyQrCode from "./GenerateTemporyQrCode";
+import GenerateTemporyQrCode from "../components/GenerateTemporyQrCode";
 import DeleteIcon from "@mui/icons-material/Delete";
 import EditIcon from "@mui/icons-material/Edit";
 import QrCodeIcon from "@mui/icons-material/QrCode";
 import AddCardIcon from "@mui/icons-material/AddCard";
+import AuthContext from "../context/AuthContext";
+import { useNavigate } from "react-router-dom";
+
+import ToastContext from "../context/ToastContext";
 
 const GetRegisteredUser = () => {
+  const navigate = useNavigate();
+
+  const { user } = useContext(AuthContext);
+  const { toast } = useContext(ToastContext);
+  const topUpModalRef = useRef(null);
+  const updateModalRef = useRef(null);
+  const handleModalHidden = () => {
+    setTopUpModalErrors({
+      amountPaid: "",
+      type: "",
+    });
+  };
+  const handleUpdateModalHidden = () => {
+    setTopUpModalErrors({
+      amountPaid: "",
+      type: "",
+    });
+  };
+
+  useEffect(() => {
+    const modalElementTopup = topUpModalRef.current;
+    modalElementTopup.addEventListener("hidden.bs.modal", handleModalHidden);
+    const modalElementUpdate = updateModalRef.current;
+    modalElementUpdate.addEventListener(
+      "hidden.bs.modal",
+      handleUpdateModalHidden
+    );
+
+    return () => {
+      modalElementTopup.removeEventListener(
+        "hidden.bs.modal",
+        handleModalHidden
+      );
+      modalElementUpdate.removeEventListener(
+        "hidden.bs.modal",
+        handleUpdateModalHidden
+      );
+    };
+  }, []);
+
+  useEffect(() => {
+    !user && navigate("/login", { replace: true });
+  }, []);
+
   const { data, isSearchPressed } = useContext(CommonContext);
   const [passengers, setPassengers] = useState([]);
 
-  console.log(
-    "🚀 ~ file: GetRegisteredUser.js:8 ~ GetRegisteredUser ~ passengers:",
-    passengers
-  );
   const [currentPage, setCurrentPage] = useState(1);
   const [amountPaid, setAmountPaid] = useState(0);
-  const [user, setUser] = useState({
+  const [passengerDetails, setPassengerDetails] = useState({
     passenger: {
       name: "",
       email: "",
@@ -30,7 +74,22 @@ const GetRegisteredUser = () => {
     isGetQRClicked: false,
   });
 
+  const [updateModalErrors, setUpdateModalErrors] = useState({
+    name: "",
+    email: "",
+    nic: "",
+    contactNo: "",
+    address: "",
+  });
 
+  const [topUpModalErrors, setTopUpModalErrors] = useState({
+    amountPaid: "",
+    type: "",
+  });
+  console.log(
+    "🚀 ~ file: GetRegisteredUser.js:41 ~ GetRegisteredUser ~ passengerDetails:",
+    passengerDetails
+  );
 
   useEffect(() => {
     getPassengers(10, 1);
@@ -60,7 +119,11 @@ const GetRegisteredUser = () => {
       }
     );
     const datas = await response.json();
-    setPassengers(datas.result);
+    if (datas.error) {
+      toast.error(datas.error);
+    } else {
+      setPassengers(datas.result);
+    }
   };
   const searchPassengers = async () => {
     const response = await fetch(
@@ -75,34 +138,100 @@ const GetRegisteredUser = () => {
     );
 
     const datas = await response.json();
-    setPassengers(datas.result);
+    if (datas.error) {
+      toast.error(datas.error);
+    } else setPassengers(datas.result);
   };
   const handleUpdateChange = (e) => {
-    setUser({
-      ...user,
-      passenger: { ...user.passenger, [e.target.name]: e.target.value },
+    setPassengerDetails({
+      ...passengerDetails,
+      passenger: {
+        ...passengerDetails.passenger,
+        [e.target.name]: e.target.value,
+      },
     });
   };
   const handleUpdate = async () => {
+    const errors = {
+      name: passengerDetails.passenger.name.trim() === "",
+      email: passengerDetails.passenger.email.trim() === "",
+      nic: passengerDetails.passenger.nic.trim() === "",
+      contactNo: passengerDetails.passenger.contactNo.trim() === "",
+      address: passengerDetails.passenger.address.trim() === "",
+    };
+
+    setUpdateModalErrors({ ...updateModalErrors, ...errors });
+
+    if (!Object.values(errors).every((error) => !error)) {
+      toast.error("Please fill all the fields");
+      return;
+    }
+
     const response = await fetch(
-      `http://localhost:9000/api/updatePassenger/${user.passenger._id}`,
+      `http://localhost:9000/api/updatePassenger/${passengerDetails.passenger._id}`,
       {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${localStorage.getItem("token")}`,
         },
-        body: JSON.stringify(user.passenger),
+        body: JSON.stringify(passengerDetails.passenger),
       }
     );
     const datas = await response.json();
-    setPassengers(
-      passengers.map((user) =>
-        user._id === datas.result._id ? datas.result : user
-      )
+    if (datas.error) {
+      toast.error(datas.error);
+    } else {
+      toast.success("Updated successfully");
+      setPassengers(
+        passengers.map((user) =>
+          user._id === datas.result._id ? datas.result : user
+        )
+      );
+    }
+  };
+  const handleTopUp = async () => {
+    const errors = {
+      amountPaid: Number(amountPaid) === 0,
+      type: passengerDetails.passenger.type.trim() === "",
+    };
+
+    setTopUpModalErrors({ ...topUpModalErrors, ...errors });
+
+    if (!Object.values(errors).every((error) => !error)) {
+      toast.error("Please fill all the fields");
+      return;
+    }
+    const dataToSend = {
+      amount: Number(amountPaid),
+      type: passengerDetails.passenger.type,
+    };
+    const response = await fetch(
+      `http://localhost:9000/api/addTransaction/${passengerDetails.passenger._id}`,
+      {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+        body: JSON.stringify(dataToSend),
+      }
     );
+    const datas = await response.json();
+    if (datas.error) {
+      toast.error(datas.error);
+    } else {
+      toast.success("Updated successfully");
+
+      setPassengers(
+        passengers.map((user) =>
+          user._id === datas.result._id ? { ...user, ...datas.result } : user
+        )
+      );
+    }
   };
   const handleDelete = async (id) => {
+    if (!window.confirm("Are you sure you want to delete this user?")) return;
     const response = await fetch(
       `http://localhost:9000/api/deletePassenger/${id}`,
       {
@@ -120,11 +249,12 @@ const GetRegisteredUser = () => {
     setAmountPaid(e.target.value);
   };
   useEffect(() => {
-    setUser({
-      ...user,
+    setPassengerDetails({
+      ...passengerDetails,
       passenger: {
-        ...user.passenger,
-        newAccBalance: Number(user.passenger.accBalance) + Number(amountPaid),
+        ...passengerDetails.passenger,
+        newAccBalance:
+          Number(passengerDetails.passenger.accBalance) + Number(amountPaid),
         amountPaid: Number(amountPaid),
       },
     });
@@ -132,7 +262,7 @@ const GetRegisteredUser = () => {
 
   return (
     <div>
-      {!user.isGetQRClicked && (
+      {!passengerDetails.isGetQRClicked && (
         <div>
           <div className="d-flex justify-content-center align-items-center">
             <div
@@ -212,10 +342,10 @@ const GetRegisteredUser = () => {
 
                         <td className="px-1 py-2 text-center">
                           <button
-                            className="btn btn-primary rounded py-1 px-2"
+                            className="btn rounded py-1 px-2"
                             onClick={() => {
-                              setUser({
-                                ...user,
+                              setPassengerDetails({
+                                ...passengerDetails,
                                 isGetQRClicked: true,
                                 passenger: passenger,
                               });
@@ -226,12 +356,12 @@ const GetRegisteredUser = () => {
                         </td>
                         <td className="px-1 py-2 text-center">
                           <button
-                            className="btn btn-success rounded py-1 px-2"
+                            className="btn  rounded py-1 px-2"
                             data-bs-toggle="modal"
                             data-bs-target="#topUpModal"
                             onClick={() => {
-                              setUser({
-                                ...user,
+                              setPassengerDetails({
+                                ...passengerDetails,
                                 passenger: {
                                   ...passenger,
                                   newAccBalance: passenger.accBalance,
@@ -245,12 +375,12 @@ const GetRegisteredUser = () => {
 
                         <td className="px-1 py-2 text-center">
                           <button
-                            className="btn btn-warning rounded py-1 px-2"
+                            className="btn  rounded py-1 px-2"
                             data-bs-toggle="modal"
                             data-bs-target="#updateUserModal"
                             onClick={() => {
-                              setUser({
-                                ...user,
+                              setPassengerDetails({
+                                ...passengerDetails,
                                 passenger: passenger,
                               });
                             }}
@@ -260,9 +390,9 @@ const GetRegisteredUser = () => {
                         </td>
                         <td className="px-1 py-2 text-center">
                           <button
-                            className="btn btn-danger rounded py-1 px-2"
+                            className="btn btn-danger rounded-circle p-1"
                             onClick={() => {
-                              handleDelete(user._id);
+                              handleDelete(passenger._id);
                             }}
                           >
                             <DeleteIcon />
@@ -329,15 +459,15 @@ const GetRegisteredUser = () => {
           </div>
         </div>
       )}
-      {user.isGetQRClicked && (
+      {passengerDetails.isGetQRClicked && (
         <div className="">
-          <GenerateTemporyQrCode userData={user} />
+          <GenerateTemporyQrCode userData={passengerDetails} />
           <div className="">
             <button
               className="btn btn-primary position-absolute bottom-0 end-0 mb-5 me-5"
               onClick={() => {
-                setUser({
-                  ...user,
+                setPassengerDetails({
+                  ...passengerDetails,
                   isGetQRClicked: false,
                 });
               }}
@@ -353,6 +483,7 @@ const GetRegisteredUser = () => {
         tabindex="-1"
         aria-labelledby="updateUserModalLabel"
         aria-hidden="true"
+        ref={updateModalRef}
       >
         <div class="modal-dialog  ">
           <div class="modal-content">
@@ -378,7 +509,7 @@ const GetRegisteredUser = () => {
                     class="form-control"
                     id="name"
                     name="name"
-                    value={user.passenger.name}
+                    value={passengerDetails.passenger.name}
                     onChange={(e) => handleUpdateChange(e)}
                   />
                 </div>
@@ -392,7 +523,7 @@ const GetRegisteredUser = () => {
                     class="form-control"
                     id="email"
                     name="email"
-                    value={user.passenger.email}
+                    value={passengerDetails.passenger.email}
                     onChange={(e) => handleUpdateChange(e)}
                   />
                 </div>
@@ -404,7 +535,7 @@ const GetRegisteredUser = () => {
                     class="form-control"
                     id="nic"
                     name="nic"
-                    value={user.passenger.nic}
+                    value={passengerDetails.passenger.nic}
                     onChange={(e) => handleUpdateChange(e)}
                   />
                 </div>
@@ -416,7 +547,7 @@ const GetRegisteredUser = () => {
                     class="form-control"
                     id="contactNo"
                     name="contactNo"
-                    value={user.passenger.contactNo}
+                    value={passengerDetails.passenger.contactNo}
                     onChange={(e) => handleUpdateChange(e)}
                   />
                 </div>
@@ -428,7 +559,7 @@ const GetRegisteredUser = () => {
                     class="form-control"
                     id="address"
                     name="address"
-                    value={user.passenger.address}
+                    value={passengerDetails.passenger.address}
                     onChange={(e) => handleUpdateChange(e)}
                   />
                 </div>
@@ -460,6 +591,7 @@ const GetRegisteredUser = () => {
         tabindex="-1"
         aria-labelledby="topUpModalLabel"
         aria-hidden="true"
+        ref={topUpModalRef}
       >
         <div class="modal-dialog  ">
           <div class="modal-content">
@@ -482,12 +614,30 @@ const GetRegisteredUser = () => {
                   </label>
                   <input
                     type="text"
-                    class="form-control border-0 "
+                    class="form-control border-0 ms-1 "
                     id="currentAmount"
                     name="currentAmount"
-                    value={user.passenger.newAccBalance}
+                    value={passengerDetails.passenger.newAccBalance}
                     readOnly
                   />
+                </div>
+                <div className="mb-3 d-flex">
+                  <label htmlFor="inputPayment" className="col-form-label w-50">
+                    Select Payment Type
+                  </label>
+                  {/* <div className=" ms-2 w-50"> */}
+                  <select
+                    className="form-select ms-1"
+                    aria-label="Default select example"
+                    name="type"
+                    value={passengerDetails.passenger.type}
+                    onChange={(e) => handleUpdateChange(e)}
+                  >
+                    <option value=""></option>
+                    <option value="CASH">Cash</option>
+                    <option value="CREDIT">Credit</option>
+                    <option value="DEBIT">Debit</option>
+                  </select>
                 </div>
 
                 <div class="mb-3 d-flex">
@@ -495,7 +645,7 @@ const GetRegisteredUser = () => {
                     Amount Paid:
                   </label>
                   <input
-                    class="form-control"
+                    class="form-control "
                     id="address"
                     name="address"
                     value={amountPaid}
@@ -515,7 +665,7 @@ const GetRegisteredUser = () => {
               <button
                 type="button"
                 class="btn btn-primary"
-                onClick={handleUpdate}
+                onClick={handleTopUp}
                 data-bs-dismiss="modal"
               >
                 Save changes

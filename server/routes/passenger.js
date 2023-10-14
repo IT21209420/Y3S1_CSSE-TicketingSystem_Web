@@ -151,6 +151,10 @@ router.put("/updatePassenger/:id", authenticateToken, async (req, res) => {
     user = { ...user._doc, ...req.body };
 
     const result = await Passenger.updateOne({ _id: id }, user);
+    console.log(result);
+    if (result.nModified === 0) {
+      return res.status(400).json({ error: "Failed to update" });
+    }
 
     return res.status(200).json({ result: user });
   } catch (err) {
@@ -186,13 +190,22 @@ router.put(
         type: type,
       });
       let savedTransaction = await transaction.save();
-      
+
       passenger.transactions.push(savedTransaction._id);
       passenger.accBalance = Number(passenger.accBalance) + Number(amount);
 
       const result = await Passenger.updateOne({ _id: id }, passenger);
+      if (result.nModified === 0) {
+        return res.status(400).json({ error: "Failed to update" });
+      }
 
-      return res.status(200).json({ result: result });
+      return res.status(200).json({
+        result: {
+          _id: passenger._id,
+          accBalance: passenger.accBalance,
+          transactions: passenger.transactions,
+        },
+      });
     } catch (err) {
       return res.status(400).json({ error: "Unknown Error Occured" });
     }

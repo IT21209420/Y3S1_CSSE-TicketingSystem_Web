@@ -8,7 +8,7 @@ import { AuthContextProvider } from "./context/AuthContext";
 import { ToastContextProvider } from "./context/ToastContext";
 import { CommonContextProvider } from "./context/CommonContext";
 import GenerateTemporyQr from "./pages/GenerateTemporyQr";
-import GetRegisteredUser from "./components/GetRegisteredUser";
+import GetRegisteredUser from "./pages/GetRegisteredUser";
 
 const App = () => {
   return (

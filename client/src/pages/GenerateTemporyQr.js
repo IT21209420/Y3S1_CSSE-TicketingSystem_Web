@@ -12,6 +12,7 @@ const GenerateTemporyQr = () => {
   useEffect(() => {
     !user && navigate("/login", { replace: true });
   }, []);
+  
   const { toast } = useContext(ToastContext);
   const [userData, setUserData] = useState({
     name: "",
