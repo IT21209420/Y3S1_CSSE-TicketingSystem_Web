@@ -1,9 +1,10 @@
 import React from "react";
 
-const GenerateTemporyQrAddPayment = ({
+const GeneratePermanantQrAddPayment = ({
   userData,
   setUserData,
   accBalanceErrors,
+  
 }) => {
   function handleInputChange(event) {
     const { name, value } = event.target;
@@ -48,8 +49,7 @@ const GenerateTemporyQrAddPayment = ({
               >
                 <option value=""></option>
                 <option value="CASH">Cash</option>
-                <option value="CREDIT">Credit</option>
-                <option value="DEBIT">Debit</option>
+                <option value="CARD">Card Payment</option>
               </select>
 
               {accBalanceErrors.type && (
@@ -63,4 +63,4 @@ const GenerateTemporyQrAddPayment = ({
   );
 };
 
-export default GenerateTemporyQrAddPayment;
+export default GeneratePermanantQrAddPayment;

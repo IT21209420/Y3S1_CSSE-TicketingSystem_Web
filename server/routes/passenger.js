@@ -1,5 +1,7 @@
 import express from "express";
 import Passenger from "../models/Passenger.js";
+import PermenantPassenger from "../models/PermenantPassenger.js";
+import TemporyPassenger from "../models/TemporyPassenger.js";
 import Transaction from "../models/Transaction.js";
 import authenticateToken from "../middlewares/auth.js";
 import mongoose from "mongoose";
@@ -9,11 +11,11 @@ const router = express.Router();
 router.post("/createPassenger", authenticateToken, async (req, res) => {
   const { email, name, nic, contactNo, address, accBalance, type } = req.body;
 
-  const alreadyExistEmail = await Passenger.findOne({ email });
+  const alreadyExistEmail = await PermenantPassenger.findOne({ email });
   if (alreadyExistEmail) {
     return res.status(400).json({ error: "Email already exist" });
   }
-  const alreadyExistNic = await Passenger.findOne({ nic });
+  const alreadyExistNic = await PermenantPassenger.findOne({ nic });
   if (alreadyExistNic) {
     return res.status(400).json({ error: "NIC already exist" });
   }
@@ -42,7 +44,7 @@ router.post("/createPassenger", authenticateToken, async (req, res) => {
   });
 
   try {
-    const newPassenger = new Passenger({
+    const newPassenger = new PermenantPassenger({
       email: email,
       name: name,
       nic: nic,
@@ -50,9 +52,18 @@ router.post("/createPassenger", authenticateToken, async (req, res) => {
       address: address,
       accBalance: accBalance,
       transactions: [savedTransaction._id],
+      passengerType: "Permanant",
+      userId: req.user.role === "user" ? req.user.id : null,
     });
 
     const result = await newPassenger.save();
+    console.log(result);
+
+    let passenger = await Passenger.create({
+      passengerType: "Permenant",
+      permentPassenger: result._doc._id,
+    });
+    let savedPassenger = await passenger.save();
 
     return res.status(201).json({ ...result._doc });
   } catch (err) {
@@ -60,26 +71,13 @@ router.post("/createPassenger", authenticateToken, async (req, res) => {
   }
 });
 
-// router.get(
-//   "/getPassengers",
-//   //  authenticateToken,
-//   async (req, res) => {
-//     try {
-//       const result = await Passenger.find().limit(10);
-//       return res.status(200).json({ result });
-//     } catch (err) {
-//       return res.status(400).json({ error: "Unknown Error Occured" });
-//     }
-//   }
-// );
-
 router.get(
   "/getPassengers/:pageSize/:pageNumber",
-  authenticateToken,
+  // authenticateToken,
   async (req, res) => {
     const { pageSize, pageNumber } = req.params;
     try {
-      const result = await Passenger.find()
+      const result = await PermenantPassenger.find()
         .skip((pageNumber - 1) * pageSize)
         .limit(pageSize);
       return res.status(200).json({ result });
@@ -88,36 +86,58 @@ router.get(
     }
   }
 );
+router.post(
+  "/getPassengerParentId/:id",
+  // authenticateToken,
+  async (req, res) => {
+    const { id } = req.params;
+    const { passengerType } = req.body;
+    try {
+      if (passengerType === "Permenant") {
+        if (id === "undefined") {
+          return res.status(200).json({ error: "No Id recieved" });
+        }
+        const result = await Passenger.findOne({ permentPassenger: id });
+        return res.status(200).json(result._id);
+      } else if (passengerType === "Tempory") {
+        if (id === "undefined") {
+          return res.status(200).json({ error: "No Id recieved" });
+        }
+        const result = await Passenger.findOne({ temporyPassenger: id });
+        return res.status(200).json(result._id);
+      }
+    } catch (error) {}
+  }
+);
 
-router.post("/createPassengers", authenticateToken, async (req, res) => {
-  const { passengers } = req.body;
+router.get("/getPassenger/:id", authenticateToken, async (req, res) => {
+  const { id } = req.params;
+
   try {
-    const result = await Passenger.insertMany(passengers);
-    return res.status(201).json({ result });
+    const result = await PermenantPassenger.find({ nic: id }).limit(1);
+    return res.status(200).json({ result });
   } catch (err) {
     return res.status(400).json({ error: "Unknown Error Occured" });
   }
 });
 
-router.get(
-  "/getPassenger/:id",
-  //  authenticateToken,
-  async (req, res) => {
-    const { id } = req.params;
-    console.log(id);
-    try {
-      const result = await Passenger.find({ nic: id }).limit(1);
-      return res.status(200).json({ result });
-    } catch (err) {
-      return res.status(400).json({ error: "Unknown Error Occured" });
-    }
+router.get("/getPassengerByUserId", authenticateToken, async (req, res) => {
+  const id = req.user.id;
+  try {
+    const result = await PermenantPassenger.findOne({ userId: id });
+    console.log(result);
+    if (!result) return res.status(400).json({ error: "User not found" });
+    return res.status(200).json(result);
+  } catch (err) {
+    return res.status(400).json({ error: "Unknown Error Occured" });
   }
-);
+});
 
 router.delete("/deletePassenger/:id", authenticateToken, async (req, res) => {
   const { id } = req.params;
   try {
-    const result = await Passenger.deleteOne({ _id: id });
+    const result = await PermenantPassenger.deleteOne({ _id: id });
+    const result2 = await Passenger.deleteOne({ permentPassenger: id });
     return res.status(200).json({ result });
   } catch (err) {
     return res.status(400).json({ error: "Unknown Error Occured" });
@@ -145,12 +165,12 @@ router.put("/updatePassenger/:id", authenticateToken, async (req, res) => {
     return res.status(400).json({ error: "address not recieved" });
 
   try {
-    let user = await Passenger.findOne({ _id: id });
+    let user = await PermenantPassenger.findOne({ _id: id });
     if (!user) return res.status(400).json({ error: "user not found" });
 
     user = { ...user._doc, ...req.body };
 
-    const result = await Passenger.updateOne({ _id: id }, user);
+    const result = await PermenantPassenger.updateOne({ _id: id }, user);
     console.log(result);
     if (result.nModified === 0) {
       return res.status(400).json({ error: "Failed to update" });
@@ -162,54 +182,131 @@ router.put("/updatePassenger/:id", authenticateToken, async (req, res) => {
   }
 });
 
-router.put(
-  "/addTransaction/:id",
-  //  authenticateToken,
-  async (req, res) => {
-    const { id } = req.params;
-    const { amount, type } = req.body;
-    if (!id) return res.status(400).json({ error: "no id specified." });
+router.put("/addTransaction/:id", authenticateToken, async (req, res) => {
+  const { id } = req.params;
+  const { amount, type } = req.body;
+  if (!id) return res.status(400).json({ error: "no id specified." });
 
-    if (!mongoose.isValidObjectId(id))
-      return res.status(400).json({ error: "please enter a valid id" });
+  if (!mongoose.isValidObjectId(id))
+    return res.status(400).json({ error: "please enter a valid id" });
 
-    if (amount === "" || amount === undefined)
-      return res.status(400).json({ error: "amount not recieved" });
+  if (amount === "" || amount === undefined)
+    return res.status(400).json({ error: "amount not recieved" });
 
-    if (type === "" || type === undefined)
-      return res.status(400).json({ error: "type not recieved" });
+  if (type === "" || type === undefined)
+    return res.status(400).json({ error: "type not recieved" });
 
-    try {
-      let passenger = await Passenger.findOne({ _id: id });
+  try {
+    let passenger = await PermenantPassenger.findOne({ _id: id });
 
-      if (!passenger)
-        return res.status(400).json({ error: "Passenger not found" });
+    if (!passenger)
+      return res.status(400).json({ error: "PermenantPassenger not found" });
 
-      let transaction = await Transaction.create({
-        amount: amount,
-        type: type,
-      });
-      let savedTransaction = await transaction.save();
+    let transaction = await Transaction.create({
+      amount: amount,
+      type: type,
+    });
+    let savedTransaction = await transaction.save();
 
-      passenger.transactions.push(savedTransaction._id);
-      passenger.accBalance = Number(passenger.accBalance) + Number(amount);
+    passenger.transactions.push(savedTransaction._id);
+    passenger.accBalance = Number(passenger.accBalance) + Number(amount);
 
-      const result = await Passenger.updateOne({ _id: id }, passenger);
-      if (result.nModified === 0) {
-        return res.status(400).json({ error: "Failed to update" });
-      }
-
-      return res.status(200).json({
-        result: {
-          _id: passenger._id,
-          accBalance: passenger.accBalance,
-          transactions: passenger.transactions,
-        },
-      });
-    } catch (err) {
-      return res.status(400).json({ error: "Unknown Error Occured" });
+    const result = await PermenantPassenger.updateOne({ _id: id }, passenger);
+    if (result.nModified === 0) {
+      return res.status(400).json({ error: "Failed to update" });
     }
+
+    return res.status(200).json({
+      result: {
+        _id: passenger._id,
+        accBalance: passenger.accBalance,
+        transactions: passenger.transactions,
+      },
+    });
+  } catch (err) {
+    return res.status(400).json({ error: "Unknown Error Occured" });
   }
-);
+});
+
+router.get("/getTransactionByUserId", authenticateToken, async (req, res) => {
+  const id = req.user.id;
+  try {
+    const result = await PermenantPassenger.findOne({ userId: id });
+    console.log(result);
+    if (!result)
+      return res.status(400).json({ error: "PermenantPassenger not found" });
+    if (!result.transactions)
+      return res.status(400).json({ error: "No transactions found" });
+    let transactions = [];
+    for (let i = 0; i < result.transactions.length; i++) {
+      let transaction = await Transaction.findOne({
+        _id: result.transactions[i],
+      });
+      transactions.push({
+        _id: transaction._id,
+        amount: transaction.amount,
+        type: transaction.type,
+        createdAt: transaction.createdAt,
+      });
+    }
+    return res.status(200).json(transactions);
+  } catch (err) {
+    return res.status(400).json({ error: "Unknown Error Occured" });
+  }
+});
+router.post("/createTemporyPassenger", authenticateToken, async (req, res) => {
+  const { amount, type, packageType } = req.body;
+  if (!amount) return res.status(400).json({ error: "amount not recieved" });
+  if (!type) return res.status(400).json({ error: "type not recieved" });
+  if (!packageType)
+    return res.status(400).json({ error: "packageType not recieved" });
+
+  let savedTransaction = await Transaction.create({
+    amount: amount,
+    type: type,
+  });
+
+  // try {
+  const currentDate = new Date();
+  let endDateTime = new Date();
+
+  console.log(
+    "🚀 ~ file: passenger.js:267 ~ router.post ~ packageType:",
+    packageType
+  );
+  if (packageType === "One Day") {
+    endDateTime.setDate(endDateTime.getDate() + 1);
+  } else if (packageType === "Week") {
+    endDateTime.setDate(endDateTime.getDate() + 7);
+  }
+  console.log(
+    "🚀 ~ file: passenger.js:271 ~ router.post ~ endDateTime:",
+    endDateTime
+  );
+  Date.now();
+  console.log(
+    "🚀 ~ file: passenger.js:280 ~ router.post ~  Date.now():",
+    Date.now()
+  );
+  const newPassenger = new TemporyPassenger({
+    packageType: packageType,
+    transactions: [savedTransaction._id],
+    startTimeAndDate: currentDate,
+    endTimeAndDate: endDateTime,
+  });
+
+  const result = await newPassenger.save();
+
+  let passenger = await Passenger.create({
+    passengerType: "Tempory",
+    temporyPassenger: result._doc._id,
+  });
+  let savedPassenger = await passenger.save();
+
+  return res.status(201).json(result._doc);
+  // } catch (err) {
+  //   return res.status(400).json({ error: "Unknown Error Occured" });
+  // }
+});
 
 export default router;

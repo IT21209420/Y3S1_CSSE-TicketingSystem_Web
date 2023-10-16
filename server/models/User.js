@@ -18,11 +18,6 @@ const UserSchema = new mongoose.Schema({
     default: "user",
     required: [true, "role is required"],
   },
-  
-  passengerId: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "Passenger",
-  },
 });
 
 //Creating a model

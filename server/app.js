@@ -5,7 +5,9 @@ import authRouter from "./routes/auth.js";
 import postRouter from "./routes/post.js";
 import passengerRouter from "./routes/passenger.js";
 import dotenv from "dotenv";
-dotenv.config({ path: "./config/config.env" });
+
+dotenv.config();
+
 import cors from "cors";
 
 const app = express();
@@ -21,7 +23,7 @@ app.use("/api", postRouter);
 app.use("/api", passengerRouter);
 
 //server config
-const PORT = process.env.PORT || 9000;
+const PORT = process.env.PORT || 5000;
 app.listen(PORT, async () => {
   try {
     await connect();

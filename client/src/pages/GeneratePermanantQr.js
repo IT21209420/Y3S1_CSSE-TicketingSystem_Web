@@ -1,19 +1,22 @@
 import React, { useContext, useEffect, useState } from "react";
-import GenerateTemporyQrAddUser from "../components/GenerateTemporyQrAddUser";
-import GenerateTemporyQrAddPayment from "../components/GenerateTemporyQrAddPayment";
-import GenerateTemporyQrCode from "../components/GenerateTemporyQrCode";
+import GeneratePermanantQrAddUser from "../components/GeneratePermanantQrAddUser";
+import GeneratePermanantQrAddPayment from "../components/GeneratePermanantQrAddPayment";
+import GeneratePermanantQrCode from "../components/GeneratePermanantQrCode";
 import ToastContext from "../context/ToastContext";
 import { useNavigate } from "react-router-dom";
 import AuthContext from "../context/AuthContext";
+import PaymentPortal from "../components/PaymentPortal";
 
-const GenerateTemporyQr = () => {
+const GeneratePermanantQr = () => {
   const navigate = useNavigate();
   const { user } = useContext(AuthContext);
+
   useEffect(() => {
     !user && navigate("/login", { replace: true });
   }, []);
-  
+
   const { toast } = useContext(ToastContext);
+  const [isPaymentSuccess, setIsPaymentSuccess] = useState(false);
   const [userData, setUserData] = useState({
     name: "",
     email: "",
@@ -21,13 +24,10 @@ const GenerateTemporyQr = () => {
     contactNo: "",
     address: "",
     accBalance: "",
-    type: "CASH",
+    type: user ? (user.role === "user" ? "ONLINE" : "") : "",
     created: false,
   });
-  console.log(
-    "🚀 ~ file: GenerateTemporyQr.js:26 ~ GenerateTemporyQr ~ userData:",
-    userData
-  );
+
 
   const [formErrors, setFormErrors] = useState({
     name: "",
@@ -70,16 +70,18 @@ const GenerateTemporyQr = () => {
       if (!Object.values(errors).every((error) => !error)) {
         return;
       }
-    }
-
-    if (event.target.name === "next" && currentPage === 2) {
       if (userData.created) {
         setCurrentPage(3);
         return;
       }
       createUser(userData);
+
+      return;
+    } else if (currentPage === 3 && event.target.name === "next") {
+      navigate("/", { replace: true });
       return;
     }
+
     if (event.target.name === "previous" && currentPage > 1)
       setCurrentPage(currentPage - 1);
     else if (event.target.name === "next" && currentPage < 3)
@@ -98,7 +100,8 @@ const GenerateTemporyQr = () => {
       const result = await res.json();
       if (!result.error) {
         toast.success("Created successfully");
-        setUserData({ ...userData, created: true });
+        console.log(result);
+        setUserData({ ...userData, ...result, created: true });
         setCurrentPage(3);
       } else {
         toast.error(result.error);
@@ -107,10 +110,14 @@ const GenerateTemporyQr = () => {
       console.error(err.message);
     }
   };
+
+  const setAmountPaid = (amountPaid) => {
+    setUserData({ ...userData, accBalance: amountPaid });
+  };
   return (
     <>
       {currentPage === 1 && (
-        <GenerateTemporyQrAddUser
+        <GeneratePermanantQrAddUser
           userData={userData}
           setUserData={(user) => {
             setUserData(user);
@@ -118,16 +125,29 @@ const GenerateTemporyQr = () => {
           formErrors={formErrors}
         />
       )}
-      {currentPage === 2 && (
-        <GenerateTemporyQrAddPayment
+      {currentPage === 2 && user && user.role === "stationadmin" && (
+        <GeneratePermanantQrAddPayment
           userData={userData}
           setUserData={(user) => {
             setUserData(user);
           }}
           accBalanceErrors={accBalanceErrors}
+          
         />
       )}
-      {currentPage === 3 && <GenerateTemporyQrCode userData={userData} />}
+      {currentPage === 2 && user && user.role === "user" && (
+        <PaymentPortal
+          isPaymentSuccess={isPaymentSuccess}
+          setIsPaymentSuccess={setIsPaymentSuccess}
+          setAmountPaid={setAmountPaid}
+        />
+      )}
+      {currentPage === 3 && (
+        <GeneratePermanantQrCode
+          userData={userData}
+          passengerType="Permenant"
+        />
+      )}
 
       <div>
         {currentPage !== 1 && (
@@ -150,6 +170,9 @@ const GenerateTemporyQr = () => {
           onClick={(event) => {
             pageNumberHandler(event);
           }}
+          disabled={
+            !isPaymentSuccess && currentPage === 2 && user.role === "user"
+          }
         >
           {currentPage === 3
             ? "Back Home"
@@ -162,4 +185,4 @@ const GenerateTemporyQr = () => {
   );
 };
 
-export default GenerateTemporyQr;
+export default GeneratePermanantQr;

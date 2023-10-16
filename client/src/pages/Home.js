@@ -9,17 +9,46 @@ const Home = () => {
   useEffect(() => {
     !user && navigate("/login", { replace: true });
   }, []);
+  console.log(user);
 
-  const buttonArray = ["Create User", "Get QR"];
+  const adminButtonArray = ["Generate QR", "Get QR", "Tempory QR"];
+  const userButtonArray = [
+    "Already Have QR",
+    "Generate QR",
+    "Transactions",
+    "Top Up",
+  ];
   return (
-    <div
-      className="d-flex align-items-center  justify-content-center "
-      style={{ height: "80vh" }}
-    >
-      {buttonArray.map((text) => {
-        return <HomeButton text={text} />;
-      })}
-    </div>
+    <>
+      {user && user.role === "stationadmin" && (
+        <div
+          className="row row-cols-1 row-cols-lg-2 row-cols-xl-3"
+          style={{ height: "80vh" }}
+        >
+          {adminButtonArray.map((text) => {
+            return (
+              <div className="col">
+                <HomeButton text={text} />
+              </div>
+            );
+          })}
+        </div>
+      )}
+      {user && user.role === "user" && (
+        <div
+          className="row row-cols-1 row-cols-lg-2 row-cols-xl-3"
+          style={{ height: "80vh" }}
+        >
+          {userButtonArray.map((text) => {
+            return (
+              <div className="col">
+                <HomeButton text={text} />
+              </div>
+            );
+          })}
+        </div>
+      )}
+    </>
   );
 };
 

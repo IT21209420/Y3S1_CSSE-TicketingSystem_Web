@@ -8,7 +8,7 @@ const authenticateToken = (req, res, next) => {
     const token = authHeader.split(" ")[1]; //reject bearer word
 
     //verify the token.
-    jwt.verify(token, process.env.SECRET, async (err, payload) => {
+    jwt.verify(token, process.env.JWT_SECRET, async (err, payload) => {
       try {
         if (err) {
           return res.status(401).json({ error: "Unathorized!" });

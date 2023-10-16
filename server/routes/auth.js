@@ -85,7 +85,7 @@ router.post("/login", async (req, res) => {
     //generate token:
     const payload = { _id: isUserExist._id }; //id of the user as payload
 
-    const jwtToken = jwt.sign(payload, process.env.SECRET, {
+    const jwtToken = jwt.sign(payload, process.env.JWT_SECRET, {
       expiresIn: "6h",
     });
 

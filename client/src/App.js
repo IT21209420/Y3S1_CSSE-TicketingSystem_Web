@@ -7,29 +7,41 @@ import Register from "./pages/Register";
 import { AuthContextProvider } from "./context/AuthContext";
 import { ToastContextProvider } from "./context/ToastContext";
 import { CommonContextProvider } from "./context/CommonContext";
-import GenerateTemporyQr from "./pages/GenerateTemporyQr";
+import GeneratePermanantQr from "./pages/GeneratePermanantQr";
 import GetRegisteredUser from "./pages/GetRegisteredUser";
+import GetRegisteredUserQR from "./pages/GetRegisteredUserQR";
+import Transactions from "./pages/Transactions";
+import TopUpUser from "./pages/TopUpUser";
+import TemporyQR from "./pages/TemporyQR";
 
 const App = () => {
   return (
-    <CommonContextProvider>
-      <ToastContextProvider>
+    <ToastContextProvider>
+      <CommonContextProvider>
         <AuthContextProvider>
           <Layout>
             <Routes>
               <Route path="/" element={<Home />} />
-              <Route path="/generateqr" element={<GenerateTemporyQr />} />
+              <Route path="/generateqr" element={<GeneratePermanantQr />} />
               <Route
                 path="/getregistereduser"
                 element={<GetRegisteredUser />}
               />
               <Route path="/login" element={<Login />} />
               <Route path="/register" element={<Register />} />
+              <Route
+                path="/getregistereduserqr"
+                element={<GetRegisteredUserQR />}
+              />
+              <Route path="/userTransactions" element={<Transactions />} />
+              <Route path="/topUpAccount" element={<TopUpUser />} />
+              <Route path="/temporyQr" element={<TemporyQR />} />
+              <Route path="*" element={<h1>Not Found</h1>} />
             </Routes>
           </Layout>
         </AuthContextProvider>
-      </ToastContextProvider>
-    </CommonContextProvider>
+      </CommonContextProvider>
+    </ToastContextProvider>
   );
 };
 
