@@ -7,6 +7,10 @@ import { useNavigate } from "react-router-dom";
 import AuthContext from "../context/AuthContext";
 import PaymentPortal from "../components/PaymentPortal";
 
+/**
+ * Component for generating a permanent QR code for a passenger.
+ * @returns {JSX.Element} The GeneratePermanantQr component.
+ */
 const GeneratePermanantQr = () => {
   const navigate = useNavigate();
   const { user } = useContext(AuthContext);
@@ -44,6 +48,10 @@ const GeneratePermanantQr = () => {
 
   const [currentPage, setCurrentPage] = useState(1);
 
+  /**
+   * Handles the page number change when the user clicks on the next or previous button.
+   * @param {Object} event - The event object.
+   */
   function pageNumberHandler(event) {
     if (currentPage === 1 && event.target.name === "next") {
       const errors = {
@@ -87,6 +95,11 @@ const GeneratePermanantQr = () => {
     else if (event.target.name === "next" && currentPage < 3)
       setCurrentPage(currentPage + 1);
   }
+
+  /**
+   * Creates a new passenger with the given user data.
+   * @param {Object} userData - The user data to create the passenger.
+   */
   const createUser = async (userData) => {
     try {
       const res = await fetch(`http://localhost:9000/api/createPassenger`, {
@@ -111,9 +124,14 @@ const GeneratePermanantQr = () => {
     }
   };
 
+  /**
+   * Sets the amount paid by the user.
+   * @param {number} amountPaid - The amount paid by the user.
+   */
   const setAmountPaid = (amountPaid) => {
     setUserData({ ...userData, accBalance: amountPaid });
   };
+
   return (
     <>
       {currentPage === 1 && (
@@ -184,5 +202,4 @@ const GeneratePermanantQr = () => {
     </>
   );
 };
-
 export default GeneratePermanantQr;

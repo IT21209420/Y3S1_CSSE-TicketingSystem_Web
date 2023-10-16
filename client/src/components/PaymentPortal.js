@@ -1,10 +1,33 @@
-import React, {  useState } from "react";
+import React, {  useContext, useEffect, useState } from "react";
+import AuthContext from "../context/AuthContext";
+import { useNavigate } from "react-router-dom";
 
+/**
+ * PaymentPortal component that allows users to make payments.
+ * @param {Object} props - Component props.
+ * @param {boolean} props.isPaymentSuccess - Indicates if payment was successful.
+ * @param {function} props.setIsPaymentSuccess - Function to set payment success state.
+ * @param {function} props.setAmountPaid - Function to set amount paid state.
+ * @returns {JSX.Element} PaymentPortal component JSX code.
+ */
+/**
+ * PaymentPortal component for handling payment form and submission.
+ * @param {Object} props - Component props.
+ * @param {boolean} props.isPaymentSuccess - Flag indicating if payment was successful.
+ * @param {function} props.setIsPaymentSuccess - Function to set isPaymentSuccess flag.
+ * @param {function} props.setAmountPaid - Function to set amount paid.
+ * @returns {JSX.Element} PaymentPortal component JSX.
+ */
 const PaymentPortal = ({
   isPaymentSuccess,
   setIsPaymentSuccess,
   setAmountPaid,
 }) => {
+  const { user } = useContext(AuthContext);
+  const navigate = useNavigate();
+  useEffect(() => {
+    !user && navigate("/login", { replace: true });
+  }, []);
 
   const [formData, setFormData] = useState({
     paymentAmount: "",

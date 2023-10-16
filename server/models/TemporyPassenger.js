@@ -1,5 +1,15 @@
 import mongoose from "mongoose";
 
+/**
+ * Mongoose schema for temporary passenger data.
+ * @typedef {Object} TemporyPassengerSchema
+ * @property {string} packageType - The type of package purchased by the passenger.
+ * @property {mongoose.Schema.Types.ObjectId} transactionId - The ID of the transaction associated with the passenger.
+ * @property {Date} startTimeAndDate - The start time and date of the passenger's journey.
+ * @property {Date} endTimeAndDate - The end time and date of the passenger's journey.
+ * @property {Date} createdAt - The timestamp of when the passenger data was created.
+ * @property {Date} updatedAt - The timestamp of when the passenger data was last updated.
+ */
 const TemporyPassengerSchema = new mongoose.Schema(
   {
     packageType: {

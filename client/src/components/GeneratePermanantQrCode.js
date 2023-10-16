@@ -3,20 +3,32 @@ import QRCode from "qrcode.react";
 import { toPng } from "html-to-image";
 import download from "downloadjs";
 import ToastContext from "../context/ToastContext";
+import AuthContext from "../context/AuthContext";
+import { useNavigate } from "react-router-dom";
 
+/**
+ * A component that generates a permanent QR code for a given user data and passenger type.
+ * @param {Object} props - The component props.
+ * @param {Object} props.userData - The user data object.
+ * @param {string} props.passengerType - The passenger type.
+ * @returns {JSX.Element} - The JSX element representing the component.
+ */
 const GeneratePermanantQrCode = ({ userData, passengerType }) => {
-  console.log(
-    "🚀 ~ file: GeneratePermanantQrCode.js:8 ~ GeneratePermanantQrCode ~ userData:",
-    userData
-  );
+  const { user } = useContext(AuthContext);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    // Redirect to login page if user is not logged in.
+    !user && navigate("/login", { replace: true });
+  }, []);
+
   const chart = useRef(null);
   const { toast } = useContext(ToastContext);
   const [parentId, setParentId] = useState("");
-  console.log(
-    "🚀 ~ file: GeneratePermanantQrCode.js:11 ~ GeneratePermanantQrCode ~ parentId:",
-    parentId
-  );
 
+  /**
+   * Handles the export of the QR code as a PNG image.
+   */
   const handleExportSVG = async () => {
     if (!chart.current) {
       return;
@@ -24,10 +36,14 @@ const GeneratePermanantQrCode = ({ userData, passengerType }) => {
     const dataUrl = await toPng(chart.current);
     download(dataUrl, "Qr_" + userData._id + ".png");
   };
+
   useEffect(() => {
     handleQrOnlick();
   }, [userData]);
 
+  /**
+   * Handles the click event on the QR code.
+   */
   const handleQrOnlick = async () => {
     const response = await fetch(
       `http://localhost:9000/api/getPassengerParentId/${userData._id}`,

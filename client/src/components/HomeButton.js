@@ -2,6 +2,12 @@ import React, { useContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import AuthContext from "../context/AuthContext";
 
+/**
+ * A button component for the home page that displays an image and text.
+ * @param {Object} props - The component props.
+ * @param {string} props.text - The text to display on the button.
+ * @returns {JSX.Element} - The rendered component.
+ */
 const HomeButton = ({ text }) => {
   const { user } = useContext(AuthContext);
 
@@ -12,6 +18,7 @@ const HomeButton = ({ text }) => {
   const [hovered, setHovered] = useState(false);
   const navigate = useNavigate();
   const [imageUrl, setImageUrl] = useState("");
+
   useEffect(() => {
     if (text === "Generate QR") {
       setImageUrl(
@@ -43,6 +50,13 @@ const HomeButton = ({ text }) => {
       );
     }
   }, [text]);
+
+  /**
+   * Handles button click event and navigates to the appropriate page based on the button text.
+   * @async
+   * @function
+   * @returns {void}
+   */
   async function handleButtonClick() {
     if (text === "Generate QR") {
       navigate("/generateqr", { replace: true });

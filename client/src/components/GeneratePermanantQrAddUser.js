@@ -1,11 +1,26 @@
-import React from "react";
+// Import necessary dependencies
+import React, { useContext, useEffect } from "react";
+import AuthContext from "../context/AuthContext";
+import { useNavigate } from "react-router-dom";
 
+// Define the GeneratePermanantQrAddUser component
 const GeneratePermanantQrAddUser = ({ userData, setUserData, formErrors }) => {
+  // Get the user from the AuthContext and set up navigation
+  const { user } = useContext(AuthContext);
+  const navigate = useNavigate();
+
+  // Redirect to login page if user is not logged in
+  useEffect(() => {
+    !user && navigate("/login", { replace: true });
+  }, []);
+  
+  // Handle input changes and update the user data
   function handleInputChange(event) {
     const { name, value } = event.target;
     setUserData({ ...userData, [name]: value });
   }
 
+  // Render the form for adding a new user
   return (
     <div>
       <div className="w-50  mx-auto mt-5 bg-light-subtle p-4 rounded shadow">
@@ -118,4 +133,5 @@ const GeneratePermanantQrAddUser = ({ userData, setUserData, formErrors }) => {
   );
 };
 
+// Export the GeneratePermanantQrAddUser component
 export default GeneratePermanantQrAddUser;

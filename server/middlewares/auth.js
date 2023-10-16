@@ -1,6 +1,13 @@
 import jwt from "jsonwebtoken";
 import User from "../models/User.js";
 
+/**
+ * Middleware function to authenticate user token.
+ * @param {Object} req - Express request object.
+ * @param {Object} res - Express response object.
+ * @param {Function} next - Express next middleware function.
+ * @returns {Object} - Returns the next middleware function or error response.
+ */
 const authenticateToken = (req, res, next) => {
   const authHeader = req.headers.authorization;
 

@@ -67,7 +67,7 @@ const Login = () => {
             </button>
             <p>
               Don't have an account ?{" "}
-              <Link to="/register" style={{ textDecoration: "none" }}>
+              <Link to="/register" name="Register" style={{ textDecoration: "none" }}>
                 Create an account
               </Link>
             </p>

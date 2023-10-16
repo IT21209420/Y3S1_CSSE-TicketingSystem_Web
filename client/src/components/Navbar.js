@@ -5,17 +5,29 @@ import ToastContext from "../context/ToastContext";
 import CommonContext from "../context/CommonContext";
 import "./NavBar.css";
 
+/**
+ * Navbar component that displays a navigation bar with links based on user role
+ * @param {Object} props - Component props
+ * @param {string} props.title - Title to display in the navigation bar
+ * @returns {JSX.Element} - Rendered component
+ */
 const Navbar = ({ title = "Bus Ticketing System" }) => {
+  // Context hooks
   const { toast } = useContext(ToastContext);
   const { user, setUser } = useContext(AuthContext);
   const { setData, isSearchPressed, setIsSearchPressed } =
     useContext(CommonContext);
+
+  // Navigation hooks
   const navigate = useNavigate();
   const location = useLocation();
+
+  // State hooks
   const [currentPage, setCurrentPage] = useState("");
   const [showSidebar, setShowSidebar] = useState(false);
   const [dateTime, setDateTime] = useState(new Date());
 
+  // Update date and time every second
   useEffect(() => {
     const interval = setInterval(() => {
       setDateTime(new Date());
@@ -23,27 +35,38 @@ const Navbar = ({ title = "Bus Ticketing System" }) => {
     return () => clearInterval(interval);
   }, []);
 
-  const sidebarRef = useRef(null); // create a ref to the sidebar element
+  // Ref to the sidebar element
+  const sidebarRef = useRef(null);
 
+  /**
+   * Toggles the visibility of the sidebar
+   */
   const toggleSidebar = () => {
     setShowSidebar(!showSidebar);
   };
 
+  /**
+   * Sets the showSidebar state to true when mouse enters the sidebar
+   */
   const handleMouseEnter = () => {
-    // set showSidebar to true when mouse enters the sidebar
     setShowSidebar(true);
   };
 
+  /**
+   * Sets the showSidebar state to false when mouse leaves the sidebar
+   */
   const handleMouseLeave = () => {
-    // set showSidebar to false when mouse leaves the sidebar
     setShowSidebar(false);
   };
 
+  // Update current page based on location pathname
   useEffect(() => {
     setCurrentPage(location.pathname);
   }, [location.pathname]);
+
   return (
     <>
+      {/* Button to toggle the sidebar */}
       <button
         type="button"
         className="btn btn-secondary toggle-btn fs-6"
@@ -64,6 +87,7 @@ const Navbar = ({ title = "Bus Ticketing System" }) => {
         </svg>
       </button>
 
+      {/* Sidebar */}
       <div
         className={`sidenav ${showSidebar ? "open" : ""} `}
         ref={sidebarRef} // set the ref to the sidebar element
@@ -71,6 +95,7 @@ const Navbar = ({ title = "Bus Ticketing System" }) => {
         onMouseLeave={handleMouseLeave} // handle mouse leave event
       >
         <ul className="navbar-nav">
+          {/* Links for station admin */}
           {user && user.role === "stationadmin" && (
             <>
               <li className="nav-item">
@@ -95,7 +120,9 @@ const Navbar = ({ title = "Bus Ticketing System" }) => {
                 </Link>
               </li>
             </>
-          )}{" "}
+          )}
+
+          {/* Links for regular user */}
           {user && user.role === "user" && (
             <>
               <li className="nav-item">
@@ -119,6 +146,7 @@ const Navbar = ({ title = "Bus Ticketing System" }) => {
                   Transactions
                 </Link>
               </li>
+
               <li className="nav-item">
                 <Link to="/topUpAccount" role="button" className="nav-link">
                   Top Up
@@ -128,11 +156,16 @@ const Navbar = ({ title = "Bus Ticketing System" }) => {
           )}
         </ul>
       </div>
+
+      {/* Main navigation bar */}
       <nav className="navbar navbar-expand-lg bg-primary" data-bs-theme="dark">
         <div className="container-fluid">
+          {/* Title */}
           <Link to="./" style={{ textDecoration: "none", marginLeft: "70px" }}>
             <a className="navbar-brand">{title}</a>
           </Link>
+
+          {/* Hamburger menu */}
           <button
             className="navbar-toggler"
             type="button"
@@ -144,8 +177,11 @@ const Navbar = ({ title = "Bus Ticketing System" }) => {
           >
             <span className="navbar-toggler-icon"></span>
           </button>
+
+          {/* Links */}
           <div className="collapse navbar-collapse" id="navbarColor02">
             <ul className="navbar-nav ms-auto">
+              {/* Search bar for station admin */}
               {user ? (
                 <>
                   {currentPage === "/getregistereduser" && (

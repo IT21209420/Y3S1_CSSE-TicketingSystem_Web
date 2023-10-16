@@ -1,15 +1,34 @@
-import React from "react";
+import React, { useContext, useEffect } from "react";
+import AuthContext from "../context/AuthContext";
+import { useNavigate } from "react-router-dom";
 
+/**
+ * Generates a permanent QR code for adding payment.
+ * @param {Object} props - The component props.
+ * @param {Object} props.userData - The user data object.
+ * @param {Function} props.setUserData - The function to set user data.
+ * @param {Object} props.accBalanceErrors - The account balance errors object.
+ * @returns {JSX.Element} - The JSX element for the component.
+ */
 const GeneratePermanantQrAddPayment = ({
   userData,
   setUserData,
   accBalanceErrors,
-  
 }) => {
+  // Get the user from the AuthContext and navigate to login page if user is not logged in
+  const { user } = useContext(AuthContext);
+  const navigate = useNavigate();
+  useEffect(() => {
+    !user && navigate("/login", { replace: true });
+  }, []);
+
+  // Handle input change and update user data
   function handleInputChange(event) {
     const { name, value } = event.target;
     setUserData({ ...userData, [name]: value });
   }
+
+  // Render the component
   return (
     <div>
       <div className="w-50  mx-auto mt-5 bg-light-subtle p-4 rounded shadow">
@@ -36,11 +55,12 @@ const GeneratePermanantQrAddPayment = ({
             </div>
           </div>
           <div className="form-group  d-flex align-items-center mt-2 w-100">
-            <label htmlFor="inputPayment" className="form-label m-0 w-50">
+            <label htmlFor="selectPayment" className="form-label m-0 w-50">
               Select Payment Type
             </label>
             <div className=" ms-2 w-50">
               <select
+                id="selectPayment"
                 className="form-select"
                 aria-label="Default select example"
                 name="type"

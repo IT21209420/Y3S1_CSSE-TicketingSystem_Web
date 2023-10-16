@@ -3,6 +3,10 @@ import { useNavigate } from "react-router-dom";
 import AuthContext from "../context/AuthContext";
 import HomeButton from "../components/HomeButton";
 
+/**
+ * Home page component
+ * @returns {JSX.Element} Home page JSX element
+ */
 const Home = () => {
   const navigate = useNavigate();
   const { user } = useContext(AuthContext);

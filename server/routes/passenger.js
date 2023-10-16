@@ -44,6 +44,20 @@ router.post("/createPassenger", authenticateToken, async (req, res) => {
   });
 
   try {
+    /**
+     * Creates a new PermenantPassenger object with the given parameters.
+     * @param {string} email - The email of the passenger.
+     * @param {string} name - The name of the passenger.
+     * @param {string} nic - The NIC of the passenger.
+     * @param {string} contactNo - The contact number of the passenger.
+     * @param {string} address - The address of the passenger.
+     * @param {number} accBalance - The account balance of the passenger.
+     * @param {string[]} transactions - The list of transaction IDs associated with the passenger.
+     * @param {string} passengerType - The type of the passenger (e.g. "Permanant").
+     * @param {string} userId - The ID of the user associated with the passenger (if applicable).
+     * @returns {PermenantPassenger} A new PermenantPassenger object.
+     */
+    
     const newPassenger = new PermenantPassenger({
       email: email,
       name: name,
@@ -279,15 +293,9 @@ router.post("/createTemporyPassenger", authenticateToken, async (req, res) => {
   } else if (packageType === "Week") {
     endDateTime.setDate(endDateTime.getDate() + 7);
   }
-  console.log(
-    "🚀 ~ file: passenger.js:271 ~ router.post ~ endDateTime:",
-    endDateTime
-  );
+  
   Date.now();
-  console.log(
-    "🚀 ~ file: passenger.js:280 ~ router.post ~  Date.now():",
-    Date.now()
-  );
+  
   const newPassenger = new TemporyPassenger({
     packageType: packageType,
     transactions: [savedTransaction._id],

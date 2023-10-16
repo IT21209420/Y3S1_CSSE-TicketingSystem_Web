@@ -11,8 +11,38 @@ export const AuthContextProvider = ({ children }) => {
   const location = useLocation();
 
   useEffect(() => {
+    // define checkUserLoggedIn function inside useEffect to avoid missing dependency warning
+    const checkUserLoggedIn = async () => {
+      try {
+        const res = await fetch(`http://localhost:9000/api/me`, {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        });
+        const result = await res.json();
+        if (!result.error) {
+          if (
+            location.pathname === "/login" ||
+            location.pathname === "/register"
+          ) {
+            setTimeout(() => {
+              navigate("/", { replace: true });
+            }, 500);
+          } else {
+            navigate(location.pathname ? location.pathname : "/");
+          }
+          setUser(result);
+        } else {
+          // navigate("/login", { replace: true });
+        }
+      } catch (err) {
+        console.log(err);
+      }
+    };
+    // call checkUserLoggedIn function inside useEffect
     checkUserLoggedIn();
-  }, []);
+  }, [navigate, setUser, location.pathname]);
 
   //check user is logged in
   const checkUserLoggedIn = async () => {

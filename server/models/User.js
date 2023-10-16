@@ -1,5 +1,12 @@
 import mongoose from "mongoose";
 
+/**
+ * User schema for MongoDB
+ * @typedef {Object} UserSchema
+ * @property {string} email - User's email address
+ * @property {string} password - User's password
+ * @property {string} role - User's role (default: "user")
+ */
 const UserSchema = new mongoose.Schema({
   email: {
     type: String,

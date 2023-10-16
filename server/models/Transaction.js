@@ -1,5 +1,18 @@
 import mongoose from "mongoose";
 
+/**
+ * Mongoose schema for a transaction.
+ * @typedef {Object} TransactionSchema
+ * @property {string} amount - The amount of the transaction.
+ * @property {string} type - The type of the transaction.
+ * @property {Date} createdAt - The timestamp when the transaction was created.
+ * @property {Date} updatedAt - The timestamp when the transaction was last updated.
+ */
+
+/**
+ * Mongoose schema for a transaction.
+ * @type {import('mongoose').Schema<TransactionSchema>}
+ */
 const transactionSchema = new mongoose.Schema(
   {
     amount: {
