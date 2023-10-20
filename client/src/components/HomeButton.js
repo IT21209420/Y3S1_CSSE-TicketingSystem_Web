@@ -1,6 +1,15 @@
 import React, { useContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import AuthContext from "../context/AuthContext";
+import {
+  AlreadyHaveQR,
+  GenerateQR,
+  GetQR,
+  GetTemporyQR,
+  HomeButtonFactory,
+  TopUp,
+  Transactions,
+} from "./HomeButtonFactory";
 
 /**
  * A button component for the home page that displays an image and text.
@@ -18,33 +27,37 @@ const HomeButton = ({ text }) => {
   const [hovered, setHovered] = useState(false);
   const navigate = useNavigate();
   const [imageUrl, setImageUrl] = useState("");
+  const homeButtonFactory = new HomeButtonFactory();
+  const button = homeButtonFactory.createPayment(text);
 
   useEffect(() => {
-    if (text === "Generate QR") {
+    if (button.getButtonNameInfo() === new GenerateQR().getButtonNameInfo()) {
       setImageUrl(
         "https://www.shantellesmith.com/wp-content/uploads/2018/12/users.jpg"
       );
-    } else if (text === "Get QR") {
+    } else if (button.getButtonNameInfo() === new GetQR().getButtonNameInfo()) {
       setImageUrl(
         "https://slidemodel.com/wp-content/uploads/qrcode-presentation-powerpoint.jpg"
       );
-    } else if (text === "Remove User") {
-      setImageUrl(
-        "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRZgr6DVuqWaOkDGg7tUcy948QSKXUruVhhi4oclUJOc8ZEeluhSh3Mr-TIHHb8iNNdTQQ&usqp=CAU"
-      );
-    } else if (text === "Already Have QR") {
+    } else if (
+      button.getButtonNameInfo() === new AlreadyHaveQR().getButtonNameInfo()
+    ) {
       setImageUrl(
         "https://img.freepik.com/free-vector/qr-code-concept-illustration_114360-5933.jpg?w=740&t=st=1697403358~exp=1697403958~hmac=d8f2f3b5aba72ce55691c297bc45f5759ba917f4da6223117a9f7c40bd277703"
       );
-    } else if (text === "Transactions") {
+    } else if (
+      button.getButtonNameInfo() === new Transactions().getButtonNameInfo()
+    ) {
       setImageUrl(
         "https://img.freepik.com/free-vector/people-using-mobile-bank-remittance-money_74855-6617.jpg?w=826&t=st=1697408857~exp=1697409457~hmac=8019d9c2a682dde504000eba173878d6ca33ae14bfeb196ad87916c6d2afd7ae"
       );
-    } else if (text === "Top Up") {
+    } else if (button.getButtonNameInfo() === new TopUp().getButtonNameInfo()) {
       setImageUrl(
         "https://img.freepik.com/free-vector/transfer-money-concept-illustration_114360-3762.jpg?w=740&t=st=1697412240~exp=1697412840~hmac=98e3e15ae7d47bc7d0fb5e67469bf058db2ace5279f7a2551dae0fa126856bbc"
       );
-    } else if (text === "Tempory QR") {
+    } else if (
+      button.getButtonNameInfo() === new GetTemporyQR().getButtonNameInfo()
+    ) {
       setImageUrl(
         "https://img.freepik.com/free-photo/high-angle-qr-code-note-plateg_23-2149357885.jpg?w=360&t=st=1697420499~exp=1697421099~hmac=189f1b84a0dcb48b63d2416cb266031ee35d342885d753685cb6ecb09c4383c4"
       );
@@ -57,18 +70,19 @@ const HomeButton = ({ text }) => {
    * @function
    * @returns {void}
    */
+
   async function handleButtonClick() {
-    if (text === "Generate QR") {
+    if (button.getButtonNameInfo() === new GenerateQR().getButtonNameInfo()) {
       navigate("/generateqr", { replace: true });
-    } else if (text === "Get QR") {
+    } else if (button.getButtonNameInfo() === new GetQR().getButtonNameInfo()) {
       navigate("/getregistereduser", { replace: true });
-    } else if (text === "Already Have QR") {
+    } else if (button.getButtonNameInfo() === new AlreadyHaveQR().getButtonNameInfo()) {
       navigate("/getregistereduserqr", { replace: true });
-    } else if (text === "Transactions") {
+    } else if (button.getButtonNameInfo() === new Transactions().getButtonNameInfo()) {
       navigate("/userTransactions", { replace: true });
-    } else if (text === "Top Up") {
+    } else if (button.getButtonNameInfo() === new TopUp().getButtonNameInfo()) {
       navigate("/topUpAccount", { replace: true });
-    } else if (text === "Tempory QR") {
+    } else if (button.getButtonNameInfo() === new GetTemporyQR().getButtonNameInfo()) {
       navigate("/temporyQr", { replace: true });
     }
   }

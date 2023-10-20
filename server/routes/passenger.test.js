@@ -34,10 +34,9 @@ describe("POST /passengers", () => {
       .send(passengerData)
       .set("Accept", "application/json")
       .set("Authorization", `Bearer ${authToken}`);
+
     // Assert the HTTP response status code (400 indicates a bad request)
     expect(response.status).toBe(400);
-    // Optionally, you can further assert the response body or structure
-    // For example, you can check if the response contains an error message indicating that "Email is required"
     expect(response.body.error).toBe("Email is required");
   });
 });
@@ -102,7 +101,7 @@ it("should update an existing permanent passenger with valid fields", async () =
     .send(passengerData)
     .set("Accept", "application/json")
     .set("Authorization", `Bearer ${authToken}`);
-    
+
   expect(response.body.result.name).toBe("Jhon Doe siva");
 });
 
@@ -113,72 +112,3 @@ it("should delete a passenger by its id", async () => {
   // Assert the HTTP response status code (400 indicates a bad request)
   expect(response.statusCode).toEqual(200);
 });
-
-//   it("should add a transaction to an existing permanent passenger with a valid amount and type", async () => {
-//     const passenger = await Passenger.findOne({ email: "johndoe@example.com" });
-//     const res = await request(app)
-//       .post(`/passengers/${passenger._id}/transactions`)
-//       .send({
-//         amount: 500,
-//         type: "Credit",
-//       });
-//     expect(res.statusCode).toEqual(201);
-//     expect(res.body.transactions).toHaveLength(2);
-//   });
-
-//   it("should not create a new permanent passenger with a missing required field", async () => {
-//     const res = await request(app).post("/passengers").send({
-//       passengerType: "Permanent",
-//       name: "John Doe",
-//       email: "johndoe@example.com",
-//       NIC: "123456789V",
-//       contactNumber: "0712345678",
-//       accountBalance: 1000,
-//     });
-//     expect(res.statusCode).toEqual(400);
-//     expect(res.body).toHaveProperty("error");
-//   });
-
-//   it("should not create a new permanent passenger with an email or NIC that already exists in the database", async () => {
-//     const res = await request(app).post("/passengers").send({
-//       passengerType: "Permanent",
-//       name: "Jane Doe",
-//       email: "johndoe@example.com",
-//       NIC: "123456789V",
-//       contactNumber: "0777777777",
-//       address: "456 Main St, Colombo",
-//       accountBalance: 500,
-//     });
-//     expect(res.statusCode).toEqual(400);
-//     expect(res.body).toHaveProperty("error");
-//   });
-
-//   it("should not create a new temporary passenger with a missing required field", async () => {
-//     const res = await request(app).post("/passengers").send({
-//       passengerType: "Temporary",
-//       packageType: "One Day",
-//     });
-//     expect(res.statusCode).toEqual(400);
-//     expect(res.body).toHaveProperty("error");
-//   });
-
-//   it("should not update an existing permanent passenger with an invalid NIC or email", async () => {
-//     const passenger = await Passenger.findOne({ email: "johndoe@example.com" });
-//     const res = await request(app).put(`/passengers/${passenger._id}`).send({
-//       email: "janedoe@example.com",
-//     });
-//     expect(res.statusCode).toEqual(400);
-//     expect(res.body).toHaveProperty("error");
-//   });
-
-//   it("should not add a transaction to an existing permanent passenger with an invalid amount or type", async () => {
-//     const passenger = await Passenger.findOne({ email: "johndoe@example.com" });
-//     const res = await request(app)
-//       .post(`/passengers/${passenger._id}/transactions`)
-//       .send({
-//         amount: -500,
-//         type: "Invalid",
-//       });
-//     expect(res.statusCode).toEqual(400);
-//     expect(res.body).toHaveProperty("error");
-//   });
