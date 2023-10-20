@@ -93,7 +93,7 @@ const GetRegisteredUser = () => {
   });
 
   useEffect(() => {
-    getPassengers(10, 1);
+    getPassengers(8, 1);
   }, []);
 
   useEffect(() => {
@@ -417,7 +417,7 @@ const GetRegisteredUser = () => {
                     <button
                       className="page-link"
                       name="previous"
-                      onClick={() => loadPassengerDetails(currentPage - 1, 10)}
+                      onClick={() => loadPassengerDetails(currentPage - 1, 8)}
                       style={{ cursor: "pointer" }}
                     >
                       Previous
@@ -426,7 +426,7 @@ const GetRegisteredUser = () => {
                   <li className="page-item">
                     <button
                       className="page-link"
-                      onClick={() => loadPassengerDetails(1, 10)}
+                      onClick={() => loadPassengerDetails(1, 8)}
                       style={{ cursor: "pointer" }}
                     >
                       1
@@ -435,7 +435,7 @@ const GetRegisteredUser = () => {
                   <li className="page-item">
                     <button
                       className="page-link"
-                      onClick={() => loadPassengerDetails(2, 10)}
+                      onClick={() => loadPassengerDetails(2, 8)}
                       style={{ cursor: "pointer" }}
                     >
                       2
@@ -444,7 +444,7 @@ const GetRegisteredUser = () => {
                   <li className="page-item">
                     <button
                       className="page-link"
-                      onClick={() => loadPassengerDetails(3, 10)}
+                      onClick={() => loadPassengerDetails(3, 8)}
                       style={{ cursor: "pointer" }}
                     >
                       3
@@ -453,7 +453,7 @@ const GetRegisteredUser = () => {
                   <li className="page-item">
                     <button
                       className="page-link"
-                      onClick={() => loadPassengerDetails(currentPage + 1, 10)}
+                      onClick={() => loadPassengerDetails(currentPage + 1, 8)}
                       style={{ cursor: "pointer" }}
                     >
                       Next
