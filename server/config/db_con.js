@@ -7,20 +7,23 @@ import dotenv from "dotenv";
  */
 class DatabaseSingleton {
   constructor() {
-    if (!DatabaseSingleton.instance) {
-      dotenv.config();
-      // Initialize the database connection
-      mongoose
-        .connect(process.env.MONGODB_URL)
+    return (async () => {
+      if (!DatabaseSingleton.instance) {
+        // Load environment variables
+        dotenv.config();
 
-        .then(() => console.log(`connetion to database established...`))
+        try {
+          // Initialize the database connection
+          await mongoose.connect(process.env.MONGODB_URL);
+          console.log("Connection to the database established...");
+          DatabaseSingleton.instance = this;
+        } catch (err) {
+          console.error("Error connecting to the database:", err);
+        }
+      }
 
-        .catch((err) => console.log(err));
-
-      DatabaseSingleton.instance = this;
-    }
-
-    return DatabaseSingleton.instance;
+      return DatabaseSingleton.instance;
+    })();
   }
 }
 

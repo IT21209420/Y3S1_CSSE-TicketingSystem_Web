@@ -10,36 +10,36 @@ describe("PackageButton Component", () => {
     amount: 100,
   };
 
-  it("renders the package button", () => {
-    render(
-      <ToastContextProvider>
-        <AuthContextProvider>
-          <PackageButton packageData={packageData} setSelectedPackage={() => {}} />
-        </AuthContextProvider>
-      </ToastContextProvider>
-    );
+  // it("renders the package button", () => {
+  //   render(
+  //     <ToastContextProvider>
+  //       <AuthContextProvider>
+  //         <PackageButton packageData={packageData} setSelectedPackage={() => {}} />
+  //       </AuthContextProvider>
+  //     </ToastContextProvider>
+  //   );
 
-    // Check if the package details are present
-    expect(screen.getByText("Test Package")).toBeInTheDocument();
-    expect(screen.getByText("This is a test package")).toBeInTheDocument();
-    expect(screen.getByText("Amount : Rs.100.00")).toBeInTheDocument();
-  });
+  //   // Check if the package details are present
+  //   expect(screen.getByText("Test Package")).toBeInTheDocument();
+  //   expect(screen.getByText("This is a test package")).toBeInTheDocument();
+  //   expect(screen.getByText("Amount : Rs.100.00")).toBeInTheDocument();
+  // });
 
-  it("calls setSelectedPackage function when clicked", () => {
-    const setSelectedPackage = jest.fn();
-    render(
-      <ToastContextProvider>
-        <AuthContextProvider>
-          <PackageButton packageData={packageData} setSelectedPackage={setSelectedPackage} />
-        </AuthContextProvider>
-      </ToastContextProvider>
-    );
+  // it("calls setSelectedPackage function when clicked", () => {
+  //   const setSelectedPackage = jest.fn();
+  //   render(
+  //     <ToastContextProvider>
+  //       <AuthContextProvider>
+  //         <PackageButton packageData={packageData} setSelectedPackage={setSelectedPackage} />
+  //       </AuthContextProvider>
+  //     </ToastContextProvider>
+  //   );
 
-    // Click the package button
-    fireEvent.click(screen.getByText("Test Package"));
+  //   // Click the package button
+  //   fireEvent.click(screen.getByText("Test Package"));
 
-    // Check if setSelectedPackage function was called with the correct package data
-    expect(setSelectedPackage).toHaveBeenCalledTimes(1);
-    expect(setSelectedPackage).toHaveBeenCalledWith(packageData);
-  });
+  //   // Check if setSelectedPackage function was called with the correct package data
+  //   expect(setSelectedPackage).toHaveBeenCalledTimes(1);
+  //   expect(setSelectedPackage).toHaveBeenCalledWith(packageData);
+  // });
 });

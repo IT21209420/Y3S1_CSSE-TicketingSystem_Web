@@ -1,6 +1,6 @@
 import express from "express";
 import morgan from "morgan";
-import DatabaseSingleton from "./config/db_con.js";
+import  "./config/db_con.js";
 import authRouter from "./routes/auth.js";
 
 import passengerRouter from "./routes/passenger.js";
@@ -18,7 +18,6 @@ app.use(morgan("tiny")); //log requests
 app.use(cors());
 //routes
 
-
 app.use("/api", authRouter);
 
 app.use("/api", passengerRouter);
@@ -33,3 +32,4 @@ const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
 });
+export default app;

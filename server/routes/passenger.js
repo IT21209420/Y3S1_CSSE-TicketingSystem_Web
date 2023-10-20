@@ -8,82 +8,86 @@ import mongoose from "mongoose";
 
 const router = express.Router();
 
-router.post("/createPassenger", authenticateToken, async (req, res) => {
-  const { email, name, nic, contactNo, address, accBalance, type } = req.body;
+router.post(
+  "/createPassenger",
+   authenticateToken,
+  async (req, res) => {
+    const { email, name, nic, contactNo, address, accBalance, type } = req.body;
 
-  const alreadyExistEmail = await PermenantPassenger.findOne({ email });
-  if (alreadyExistEmail) {
-    return res.status(400).json({ error: "Email already exist" });
-  }
-  const alreadyExistNic = await PermenantPassenger.findOne({ nic });
-  if (alreadyExistNic) {
-    return res.status(400).json({ error: "NIC already exist" });
-  }
-  if (!email) {
-    return res.status(400).json({ error: "Email is required" });
-  }
-  if (!name) {
-    return res.status(400).json({ error: "Name is required" });
-  }
-  if (!nic) {
-    return res.status(400).json({ error: "NIC is required" });
-  }
-  if (!contactNo) {
-    return res.status(400).json({ error: "Contact number is required" });
-  }
-  if (!address) {
-    return res.status(400).json({ error: "Address is required" });
-  }
-  if (!accBalance) {
-    return res.status(400).json({ error: "Account balance is required" });
-  }
+    const alreadyExistEmail = await PermenantPassenger.findOne({ email });
+    if (alreadyExistEmail) {
+      return res.status(400).json({ error: "Email already exist" });
+    }
+    const alreadyExistNic = await PermenantPassenger.findOne({ nic });
+    if (alreadyExistNic) {
+      return res.status(400).json({ error: "NIC already exist" });
+    }
+    if (!email) {
+      return res.status(400).json({ error: "Email is required" });
+    }
+    if (!name) {
+      return res.status(400).json({ error: "Name is required" });
+    }
+    if (!nic) {
+      return res.status(400).json({ error: "NIC is required" });
+    }
+    if (!contactNo) {
+      return res.status(400).json({ error: "Contact number is required" });
+    }
+    if (!address) {
+      return res.status(400).json({ error: "Address is required" });
+    }
+    if (!accBalance) {
+      return res.status(400).json({ error: "Account balance is required" });
+    }
 
-  let savedTransaction = await Transaction.create({
-    amount: accBalance,
-    type: type,
-  });
-
-  try {
-    /**
-     * Creates a new PermenantPassenger object with the given parameters.
-     * @param {string} email - The email of the passenger.
-     * @param {string} name - The name of the passenger.
-     * @param {string} nic - The NIC of the passenger.
-     * @param {string} contactNo - The contact number of the passenger.
-     * @param {string} address - The address of the passenger.
-     * @param {number} accBalance - The account balance of the passenger.
-     * @param {string[]} transactions - The list of transaction IDs associated with the passenger.
-     * @param {string} passengerType - The type of the passenger (e.g. "Permanant").
-     * @param {string} userId - The ID of the user associated with the passenger (if applicable).
-     * @returns {PermenantPassenger} A new PermenantPassenger object.
-     */
-    
-    const newPassenger = new PermenantPassenger({
-      email: email,
-      name: name,
-      nic: nic,
-      contactNo: contactNo,
-      address: address,
-      accBalance: accBalance,
-      transactions: [savedTransaction._id],
-      passengerType: "Permanant",
-      userId: req.user.role === "user" ? req.user.id : null,
+    let savedTransaction = await Transaction.create({
+      amount: accBalance,
+      type: type,
     });
 
-    const result = await newPassenger.save();
-    console.log(result);
+    try {
+      /**
+       * Creates a new PermenantPassenger object with the given parameters.
+       * @param {string} email - The email of the passenger.
+       * @param {string} name - The name of the passenger.
+       * @param {string} nic - The NIC of the passenger.
+       * @param {string} contactNo - The contact number of the passenger.
+       * @param {string} address - The address of the passenger.
+       * @param {number} accBalance - The account balance of the passenger.
+       * @param {string[]} transactions - The list of transaction IDs associated with the passenger.
+       * @param {string} passengerType - The type of the passenger (e.g. "Permanant").
+       * @param {string} userId - The ID of the user associated with the passenger (if applicable).
+       * @returns {PermenantPassenger} A new PermenantPassenger object.
+       */
 
-    let passenger = await Passenger.create({
-      passengerType: "Permenant",
-      permentPassenger: result._doc._id,
-    });
-    let savedPassenger = await passenger.save();
+      const newPassenger = new PermenantPassenger({
+        email: email,
+        name: name,
+        nic: nic,
+        contactNo: contactNo,
+        address: address,
+        accBalance: accBalance,
+        transactions: [savedTransaction._id],
+        passengerType: "Permanant",
+        userId: req.user.role === "user" ? req.user.id : null,
+      });
 
-    return res.status(201).json({ ...result._doc });
-  } catch (err) {
-    return res.status(400).json({ error: "Unknown Error Occured" });
+      const result = await newPassenger.save();
+  
+
+      let passenger = await Passenger.create({
+        passengerType: "Permenant",
+        permentPassenger: result._doc._id,
+      });
+      let savedPassenger = await passenger.save();
+
+      return res.status(201).json({ ...result._doc });
+    } catch (err) {
+      return res.status(400).json({ error: "Unknown Error Occured" });
+    }
   }
-});
+);
 
 router.get(
   "/getPassengers/:pageSize/:pageNumber",
@@ -139,7 +143,7 @@ router.get("/getPassengerByUserId", authenticateToken, async (req, res) => {
   const id = req.user.id;
   try {
     const result = await PermenantPassenger.findOne({ userId: id });
-    console.log(result);
+   
     if (!result) return res.status(400).json({ error: "User not found" });
     return res.status(200).json(result);
   } catch (err) {
@@ -185,7 +189,7 @@ router.put("/updatePassenger/:id", authenticateToken, async (req, res) => {
     user = { ...user._doc, ...req.body };
 
     const result = await PermenantPassenger.updateOne({ _id: id }, user);
-    console.log(result);
+
     if (result.nModified === 0) {
       return res.status(400).json({ error: "Failed to update" });
     }
@@ -246,7 +250,7 @@ router.get("/getTransactionByUserId", authenticateToken, async (req, res) => {
   const id = req.user.id;
   try {
     const result = await PermenantPassenger.findOne({ userId: id });
-    console.log(result);
+
     if (!result)
       return res.status(400).json({ error: "PermenantPassenger not found" });
     if (!result.transactions)
@@ -284,18 +288,15 @@ router.post("/createTemporyPassenger", authenticateToken, async (req, res) => {
   const currentDate = new Date();
   let endDateTime = new Date();
 
-  console.log(
-    "🚀 ~ file: passenger.js:267 ~ router.post ~ packageType:",
-    packageType
-  );
+  
   if (packageType === "One Day") {
     endDateTime.setDate(endDateTime.getDate() + 1);
   } else if (packageType === "Week") {
     endDateTime.setDate(endDateTime.getDate() + 7);
   }
-  
+
   Date.now();
-  
+
   const newPassenger = new TemporyPassenger({
     packageType: packageType,
     transactions: [savedTransaction._id],
