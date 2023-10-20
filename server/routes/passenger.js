@@ -89,6 +89,10 @@ router.get(
   // authenticateToken,
   async (req, res) => {
     const { pageSize, pageNumber } = req.params;
+    if (isNaN(pageSize))
+      return res.status(400).json({ error: "Page size is not a number" });
+    if (isNaN(pageNumber))
+      return res.status(400).json({ error: "Page number is not a number" });
     try {
       const result = await PermenantPassenger.find()
         .skip((pageNumber - 1) * pageSize)

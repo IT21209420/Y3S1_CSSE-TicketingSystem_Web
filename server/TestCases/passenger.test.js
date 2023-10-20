@@ -1,11 +1,12 @@
 import request from "supertest";
 import app from "../app.js";
-import Passenger from "../models/Passenger.js";
 
 let authToken;
 let passengerId;
 
+//Hasaranga
 describe("POST /passengers", () => {
+  //Positive test case
   beforeAll(async () => {
     // Simulate a user login to obtain the authentication token
     const loginResponse = await request(app)
@@ -16,7 +17,7 @@ describe("POST /passengers", () => {
     authToken = loginResponse.body.jwtToken;
     console.log(authToken);
   }, 30000);
-
+  //Negative test case
   it("should not able to create a  without email", async () => {
     // Define the passenger data you want to send in the request
     const passengerData = {
@@ -41,6 +42,7 @@ describe("POST /passengers", () => {
     expect(response.body.error).toBe("Email is required");
   });
 
+  //Negative test case
   it("should not able to create a  without name", async () => {
     const passengerData = {
       name: "",
@@ -63,6 +65,7 @@ describe("POST /passengers", () => {
     expect(response.body.error).toBe("Name is required");
   });
 
+  //Positive test case
   it("should create a new permenant passenger with all required fields ", async () => {
     const passengerData = {
       name: "Jhon Doe",
@@ -85,7 +88,7 @@ describe("POST /passengers", () => {
     expect(response.body).toHaveProperty("_id");
     passengerId = response.body._id;
   });
-
+  //Positive test case
   it("should update an existing permanent passenger with valid fields", async () => {
     const passengerData = {
       name: "Jhon Doe siva",
@@ -104,18 +107,12 @@ describe("POST /passengers", () => {
 
     expect(response.body.result.name).toBe("Jhon Doe siva");
   });
-
-  it("should delete a passenger by its id", async () => {
-    const response = await request(app)
-      .delete(`/api/deletePassenger/${passengerId}`)
-      .set("Authorization", `Bearer ${authToken}`);
-    // Assert the HTTP response status code (400 indicates a bad request)
-    expect(response.statusCode).toEqual(200);
-  });
 });
 
+//Chamikara
 describe("POST /temporyPassengers", () => {
-  it("should not able to create a  without amount", async () => {
+  //Negative test case
+  it("should not able to create a tempory passenger without amount", async () => {
     // Define the passenger data you want to send in the request
 
     const temporyPassengerData = {
@@ -135,7 +132,8 @@ describe("POST /temporyPassengers", () => {
     expect(response.status).toBe(400);
     expect(response.body.error).toBe("amount not recieved");
   });
-  it("should not able to create a  without type", async () => {
+  //Negative test case
+  it("should not able to create a tempory passenger without type", async () => {
     // Define the passenger data you want to send in the request
 
     const temporyPassengerData = {
@@ -155,7 +153,8 @@ describe("POST /temporyPassengers", () => {
     expect(response.status).toBe(400);
     expect(response.body.error).toBe("type not recieved");
   });
-  it("should not able to create a  without packageType", async () => {
+  //Negative test case
+  it("should not able to create a tempory passenger without packageType", async () => {
     // Define the passenger data you want to send in the request
 
     const temporyPassengerData = {
@@ -175,7 +174,8 @@ describe("POST /temporyPassengers", () => {
     expect(response.status).toBe(400);
     expect(response.body.error).toBe("packageType not recieved");
   });
-  it("should  able to create a  tempory Passenger with all details.", async () => {
+  //Positive test case
+  it("should be able to create a tempory passenger tempory Passenger with all details.", async () => {
     // Define the passenger data you want to send in the request
 
     const temporyPassengerData = {
@@ -197,7 +197,9 @@ describe("POST /temporyPassengers", () => {
   });
 });
 
+//Pasindu
 describe("POST /passengerTransactions", () => {
+  //Negative test case
   it("should not able to create a transacion without a valid passengerId", async () => {
     const passengerTransactionsData = {
       amount: "3000",
@@ -215,7 +217,7 @@ describe("POST /passengerTransactions", () => {
     expect(response.status).toBe(400);
     expect(response.body.error).toBe("please enter a valid id");
   });
-
+  //Negative test case
   it("should not able to create a transacion without a amount", async () => {
     const passengerTransactionsData = {
       amount: "",
@@ -232,5 +234,84 @@ describe("POST /passengerTransactions", () => {
     // Assert the HTTP response status code (400 indicates a bad request)
     expect(response.status).toBe(400);
     expect(response.body.error).toBe("amount not recieved");
+  });
+  //Negative test case
+  it("should not able to create a transacion without a type", async () => {
+    const passengerTransactionsData = {
+      amount: "3000",
+      type: "",
+    };
+
+    // Make a POST request to the "create passenger" endpoint
+    const response = await request(app)
+      .put(`/api/addTransaction/${passengerId}`)
+      .send(passengerTransactionsData)
+      .set("Accept", "application/json")
+      .set("Authorization", `Bearer ${authToken}`);
+
+    // Assert the HTTP response status code (400 indicates a bad request)
+    expect(response.status).toBe(400);
+    expect(response.body.error).toBe("type not recieved");
+  });
+  //Positive test case
+  it("should be able to create a transacion with all required details", async () => {
+    const passengerTransactionsData = {
+      amount: "3000",
+      type: "One Day",
+    };
+
+    // Make a POST request to the "create passenger" endpoint
+    const response = await request(app)
+      .put(`/api/addTransaction/${passengerId}`)
+      .send(passengerTransactionsData)
+      .set("Accept", "application/json")
+      .set("Authorization", `Bearer ${authToken}`);
+
+    console.log(
+      "🚀 ~ file: passenger.test.js:264 ~ it ~ passengerId:",
+      passengerId
+    );
+    // Assert the HTTP response status code (400 indicates a bad request)
+    console.log(response.body);
+    expect(response.status).toBe(200);
+  });
+});
+
+//Ashen
+describe("Get passernger and delete /passenger", () => {
+  //Negative test case
+  it("should not get all passengers when pageSize is not a number", async () => {
+    const response = await request(app)
+      .get("/api//getPassengers/fdf/1")
+      .set("Authorization", `Bearer ${authToken}`);
+    // Assert the HTTP response status code (400 indicates a bad request)
+    expect(response.status).toBe(400);
+    expect(response.body.error).toBe("Page size is not a number");
+  });
+  //Negative test case
+  it("should not get all passengers when pageNumber is not a number", async () => {
+    const response = await request(app)
+      .get("/api//getPassengers/8/dssd")
+      .set("Authorization", `Bearer ${authToken}`);
+    // Assert the HTTP response status code (400 indicates a bad request)
+    expect(response.status).toBe(400);
+    expect(response.body.error).toBe("Page number is not a number");
+  });
+  //Positive test case
+  it("should get all passengers when pageNumber and pagesize are numbers", async () => {
+    const response = await request(app)
+      .get("/api//getPassengers/8/1")
+      .set("Authorization", `Bearer ${authToken}`);
+    // Assert the HTTP response status code (400 indicates a bad request)
+    expect(response.status).toBe(200);
+  });
+
+  //Posotiive test case
+  it("should delete a passenger by its id", async () => {
+    const response = await request(app)
+      .delete(`/api/deletePassenger/${passengerId}`)
+      .set("Authorization", `Bearer ${authToken}`);
+    // Assert the HTTP response status code (400 indicates a bad request)
+    expect(response.statusCode).toEqual(200);
   });
 });
